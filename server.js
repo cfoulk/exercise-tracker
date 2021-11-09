@@ -104,7 +104,7 @@ app.get("/api/users/:_id/logs", (req, res) => {
     if (err) {
       res.json({ error: "Invalid _id" });
     } else {
-      Log.find(userData._id).exec((err, results) => {
+      Log.find(userData._id).exec((err, log) => {
         if (err) {
           console.log("no logs for that id");
         } else {
@@ -113,7 +113,7 @@ app.get("/api/users/:_id/logs", (req, res) => {
             _id: userData._id,
             username: userData.username,
             count: countLog,
-            results,
+            log,
           });
         }
       });
