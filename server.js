@@ -11,8 +11,6 @@ app.get("/", (req, res) => {
   res.sendFile(__dirname + "/views/index.html");
 });
 
-// git push heroku HEAD:master
-
 /* Users schema:
     _id: given by db
     username: string
@@ -80,7 +78,6 @@ app.post("/api/users/:_id/exercises", (req, res) => {
     duration: req.body.duration,
     date: new Date(req.body.date).toDateString(),
   });
-  console.log(req.params._id);
   User.findById({ _id: req.params._id }, (err, userData) => {
     if (err) {
       res.json({ error: "Invalid _id" });
@@ -102,4 +99,24 @@ app.post("/api/users/:_id/exercises", (req, res) => {
   });
 });
 
-app.get("/api/users/:_id/logs", (req, res) => {});
+app.get("/api/users/:_id/logs", (req, res) => {
+  User.findById({ _id: req.params._id }, (err, userData) => {
+    if (err) {
+      res.json({ error: "Invalid _id" });
+    } else {
+      Log.find(userData._id).exec((err, results) => {
+        if (err) {
+          console.log("no logs for that id");
+        } else {
+          var countLog = results.length;
+          res.json({
+            _id: userData._id,
+            username: userData.username,
+            count: countLog,
+            results,
+          });
+        }
+      });
+    }
+  });
+});
