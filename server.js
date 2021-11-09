@@ -11,6 +11,8 @@ app.get("/", (req, res) => {
   res.sendFile(__dirname + "/views/index.html");
 });
 
+// git push heroku HEAD:master
+
 /* Users schema:
     _id: given by db
     username: string
