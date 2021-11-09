@@ -74,11 +74,12 @@ app.get("/api/users", (req, res) => {
 });
 
 app.post("/api/users/:_id/exercises", (req, res) => {
+  //let date = req.body.date.toDateString();
   const logObj = new Log({
     userId: req.params._id,
     description: req.body.description,
     duration: req.body.duration,
-    date: req.body.date,
+    date: new Date(req.body.date).toDateString(),
   });
   console.log(req.params._id);
   User.findById({ _id: req.params._id }, (err, userData) => {
@@ -90,11 +91,11 @@ app.post("/api/users/:_id/exercises", (req, res) => {
           res.json({ error: "Invalid" });
         } else {
           res.json({
-            _id: data._id,
             username: userData.username,
             description: data.description,
             duration: data.duration,
             date: data.date,
+            _id: data._id,
           });
         }
       });
