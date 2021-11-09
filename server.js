@@ -68,7 +68,7 @@ app.get("/api/users", (req, res) => {
     if (err) {
       res.json({ error: "No users found" });
     } else {
-      res.json({ users });
+      res.json(users);
     }
   });
 });
