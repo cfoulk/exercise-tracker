@@ -64,16 +64,17 @@ app.post("/api/users", (req, res) => {
 });
 
 app.post("/api/users/:_id/exercises", (req, res) => {
-  User.findById({ _id: req.body._id }, (err, userData) => {
+  const logObj = new Log({
+    userId: req.params._id,
+    description: req.body.description,
+    duration: req.body.duration,
+    date: req.body.date,
+  });
+  console.log(req.params._id);
+  User.findById({ _id: req.params._id }, (err, userData) => {
     if (err) {
-      console.log(err);
+      res.json({ error: "Invalid _id" });
     } else {
-      const logObj = new Log({
-        userId: req.body._id,
-        description: req.body.description,
-        duration: req.body.duration,
-        date: req.body.date,
-      });
       logObj.save((err, data) => {
         if (err) {
           res.json({ error: "Invalid" });
