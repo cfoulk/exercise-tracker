@@ -41,8 +41,6 @@ const logSchema = new Schema({
 });
 const userSchema = new Schema({
   username: String,
-  count: { type: Number, default: 0 },
-  logs: [logSchema],
 });
 
 const User = mongoose.model("user", userSchema);
@@ -59,6 +57,16 @@ app.post("/api/users", (req, res) => {
       res.json({ error: "Invalid" });
     } else {
       res.json({ username: data.username, _id: data._id });
+    }
+  });
+});
+
+app.get("/api/users", (req, res) => {
+  User.find({}, (err, users) => {
+    if (err) {
+      res.json({ error: "No users found" });
+    } else {
+      res.json({ users });
     }
   });
 });
