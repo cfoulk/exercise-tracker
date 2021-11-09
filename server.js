@@ -74,7 +74,6 @@ app.get("/api/users", (req, res) => {
 });
 
 app.post("/api/users/:_id/exercises", (req, res) => {
-  //let date = req.body.date.toDateString();
   const logObj = new Log({
     userId: req.params._id,
     description: req.body.description,
@@ -91,11 +90,11 @@ app.post("/api/users/:_id/exercises", (req, res) => {
           res.json({ error: "Invalid" });
         } else {
           res.json({
+            _id: userData._id,
             username: userData.username,
+            date: data.date,
             description: data.description,
             duration: data.duration,
-            date: data.date,
-            _id: data._id,
           });
         }
       });
