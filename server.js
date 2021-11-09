@@ -100,15 +100,19 @@ app.post("/api/users/:_id/exercises", (req, res) => {
 });
 
 app.get("/api/users/:_id/logs", (req, res) => {
+  console.log("1");
   User.findById({ _id: req.params._id }, (err, userData) => {
     if (err) {
       res.json({ error: "Invalid _id" });
     } else {
+      console.log("2");
       Log.find(userData._id).exec((err, log) => {
         if (err) {
           console.log("no logs for that id");
         } else {
-          var countLog = results.length;
+          console.log("3");
+          var countLog = log.length;
+          console.log("4");
           res.json({
             _id: userData._id,
             username: userData.username,
