@@ -77,7 +77,7 @@ app.post("/api/users/:_id/exercises", (req, res) => {
   } else {
     var dateVar = new Date(req.body.date);
   }
-  const logObj = new Log({
+  let logObj = new Log({
     userId: req.params._id,
     description: req.body.description,
     duration: req.body.duration,
