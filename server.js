@@ -19,7 +19,12 @@ app.get("/", (req, res) => {
 Log schema:
     description: string
     duration: number
-    date:  toDateString*/
+    date:  toDateString */
+
+//TODO
+//have my users schema hold an array of logs, have each log pushed to each user
+//figure out how to properly format the date, i.e. fix it being 1 day behind
+//implement from to limit parameters
 
 const listener = app.listen(process.env.PORT || 3000, () => {
   console.log("Your app is listening on port " + listener.address().port);
@@ -75,7 +80,10 @@ app.post("/api/users/:_id/exercises", (req, res) => {
   if (!req.body.date) {
     var dateVar = new Date();
   } else {
-    var dateVar = new Date(req.body.date);
+    var tempDate = new Date(req.body.date);
+    var dateVar = new Date(
+      tempDate.getTime() + tempDate.getTimezoneOffset * 60000
+    );
   }
   let logObj = new Log({
     userId: req.params._id,
