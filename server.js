@@ -84,11 +84,11 @@ app.post("/api/users/:_id/exercises", (req, res) => {
     date: dateVar,
   });
   User.findById({ _id: req.params._id }, (err, userData) => {
-    if (err) {
+    if (!userData) {
       res.json({ error: "Invalid _id" });
     } else {
       logObj.save((err, data) => {
-        if (err) {
+        if (!data) {
           res.json({ error: "Invalid" });
         } else {
           res.json({
@@ -112,8 +112,13 @@ app.get("/api/users/:_id/logs", (req, res) => {
     } else {
       console.log("2");
       Log.find(userData._id).exec((err, log) => {
-        if (err) {
-          console.log("no logs for that id");
+        if (!log) {
+          res.json({
+            _id: userData._id,
+            username: userData.username,
+            count: 0,
+            log: [],
+          });
         } else {
           console.log("3");
           var countLog = log.length;
@@ -122,7 +127,7 @@ app.get("/api/users/:_id/logs", (req, res) => {
             _id: userData._id,
             username: userData.username,
             count: countLog,
-            log,
+            log: log,
           });
         }
       });
