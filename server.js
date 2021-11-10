@@ -73,15 +73,15 @@ app.get("/api/users", (req, res) => {
 
 app.post("/api/users/:_id/exercises", (req, res) => {
   if (!req.body.date) {
-    var dateVar = new Date().toDateString();
+    var dateVar = new Date();
   } else {
-    var dateVar = new Date(req.body.date).toDateString();
+    var dateVar = new Date(req.body.date);
   }
   const logObj = new Log({
     userId: req.params._id,
     description: req.body.description,
     duration: req.body.duration,
-    date: dateVar,
+    date: dateVar.toDateString(),
   });
   User.findById({ _id: req.params._id }, (err, userData) => {
     if (!userData) {
