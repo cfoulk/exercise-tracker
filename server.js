@@ -87,9 +87,10 @@ app.post("/api/users/:_id/exercises", (req, res) => {
     //tempDate.getTime() + tempDate.getTimezoneOffset * 60000 //this is why I cannot use a let or const keyword, the variable is being changed
     //);
   }
+  var durationNum = parseInt(req.body.duration);
   const logObj = new Log({
     description: req.body.description,
-    duration: req.body.duration,
+    duration: durationNum,
     date: dateVar.toDateString(),
   });
   User.findOneAndUpdate(
@@ -102,7 +103,7 @@ app.post("/api/users/:_id/exercises", (req, res) => {
         res.json({
           username: userData.username,
           description: req.body.description,
-          duration: req.body.duration,
+          duration: durationNum,
           date: dateVar.toDateString(),
           _id: userData._id,
         });
