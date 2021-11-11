@@ -82,7 +82,7 @@ app.post("/api/users/:_id/exercises", (req, res) => {
   const logObj = new Log({
     description: req.body.description,
     duration: durationNum,
-    date: dateVar.toDateString(),
+    date: dateVar,
   });
   User.findOneAndUpdate(
     { _id: req.params._id },
@@ -104,7 +104,6 @@ app.post("/api/users/:_id/exercises", (req, res) => {
 });
 
 app.get("/api/users/:_id/logs", (req, res) => {
-  const { from, to, limit } = req.query;
   // var query = User.find(
   //   { _id: req.params._id },
   //   { date: { $gte: new Date(from), $lte: new Date(to) } }
@@ -115,11 +114,28 @@ app.get("/api/users/:_id/logs", (req, res) => {
       res.json({ error: "Invalid" });
     } else {
       var countLog = userData.log.length;
+      var logResult = userData.log;
+      if (req.query.from || req.query.to) {
+        if (req.query.from) {
+          logResult = logResult.filter((ele) => logResult > req.query.from);
+          let fromDate = new Date(req.query.from).toDateString();
+        }
+        if (req.query.to) {
+          logResult = logResult.filter((ele) => logResult < req.query.to);
+          let toDate = new Date(req.query.to).toDateString();
+        }
+      }
+      if (req.query.limit) {
+        logResult = logResult.slice(0, req.query.limit);
+        countLog = parseInt(req.query.limit);
+      }
       res.json({
         _id: userData._id,
         username: userData.username,
         count: countLog,
-        log: userData.log,
+        //from: fromDate,
+        //to: toDate,
+        log: logResult,
       });
     }
   });
