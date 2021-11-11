@@ -34,12 +34,12 @@ mongoose.connect(process.env.MONGO_URI, {
 });
 
 const logSchema = new Schema({
-  description: String,
-  duration: Number,
+  description: { type: String, required: true },
+  duration: { type: Number, required: true },
   date: String,
 });
 const userSchema = new Schema({
-  username: { type: String, required: true },
+  username: { type: String, required: true, unique: true },
   log: [logSchema],
 });
 
@@ -54,7 +54,7 @@ app.post("/api/users", (req, res) => {
   const userObj = new User({ username: req.body.username });
   userObj.save((err, data) => {
     if (err) {
-      res.json({ error: "Invalid" });
+      res.json({ error: "Username already in Use" });
     } else {
       res.json({ username: data.username, _id: data._id });
     }
@@ -88,8 +88,8 @@ app.post("/api/users/:_id/exercises", (req, res) => {
     { _id: req.params._id },
     { $push: { log: logObj } },
     (err, userData) => {
-      if (!userData) {
-        res.json({ error: "Invalid _id" });
+      if (err) {
+        res.json({ error: "Invalid Id" });
       } else {
         res.json({
           username: userData.username,
@@ -105,14 +105,14 @@ app.post("/api/users/:_id/exercises", (req, res) => {
 
 app.get("/api/users/:_id/logs", (req, res) => {
   const { from, to, limit } = req.query;
-  var query = User.find(
-    { _id: req.params._id },
-    { date: { $gte: new Date(from), $lte: new Date(to) } }
-  ).limit(+limit);
-  // User.findById({ _id: req.params._id }, (err, userData) => {
-  query.exec((err, userData) => {
+  // var query = User.find(
+  //   { _id: req.params._id },
+  //   { date: { $gte: new Date(from), $lte: new Date(to) } }
+  // ).limit(+limit);
+  User.findById({ _id: req.params._id }, (err, userData) => {
+    //query.exec((err, userData) => {
     if (err) {
-      res.json({ error: "Invalid _id" });
+      res.json({ error: "Invalid" });
     } else {
       var countLog = userData.log.length;
       res.json({
