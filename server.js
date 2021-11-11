@@ -36,7 +36,7 @@ mongoose.connect(process.env.MONGO_URI, {
 const logSchema = new Schema({
   description: { type: String, required: true },
   duration: { type: Number, required: true },
-  date: String,
+  date: Date,
 });
 const userSchema = new Schema({
   username: { type: String, required: true, unique: true },
@@ -117,18 +117,30 @@ app.get("/api/users/:_id/logs", (req, res) => {
       var logResult = userData.log;
       if (req.query.from || req.query.to) {
         if (req.query.from) {
-          logResult = logResult.filter((ele) => logResult > req.query.from);
-          let fromDate = new Date(req.query.from).toDateString();
+          let fromDate = new Date(req.query.from);
+          logResult = logResult.filter(
+            (logResult) => logResult.date > fromDate
+          );
+          console.log("From: " + fromDate.toDateString());
         }
         if (req.query.to) {
-          logResult = logResult.filter((ele) => logResult < req.query.to);
-          let toDate = new Date(req.query.to).toDateString();
+          let toDate = new Date(req.query.to);
+          logResult = logResult.filter((logResult) => logResult.date < toDate);
+          console.log("To: " + toDate.toDateString());
         }
       }
       if (req.query.limit) {
         logResult = logResult.slice(0, req.query.limit);
-        countLog = parseInt(req.query.limit);
+        if (req.query.limit < countLog) {
+          countLog = parseInt(req.query.limit);
+        }
       }
+
+      console.log("logging: " + logResult[0].date.toDateString());
+      logResult.forEach((x) => {
+        x.date = x.date.toDateString();
+        console.log("logging2: " + x);
+      });
       res.json({
         _id: userData._id,
         username: userData.username,
