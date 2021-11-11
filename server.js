@@ -21,11 +21,6 @@ Log schema:
     duration: number
     date:  toDateString */
 
-//TODO
-//have my users schema hold an array of logs, have each log pushed to each user
-//figure out how to properly format the date, i.e. fix it being 1 day behind
-//implement from to limit parameters
-
 const listener = app.listen(process.env.PORT || 3000, () => {
   console.log("Your app is listening on port " + listener.address().port);
 });
@@ -39,7 +34,6 @@ mongoose.connect(process.env.MONGO_URI, {
 });
 
 const logSchema = new Schema({
-  //userId: String,
   description: String,
   duration: Number,
   date: String,
@@ -83,9 +77,6 @@ app.post("/api/users/:_id/exercises", (req, res) => {
     var dateVar = new Date();
   } else {
     var dateVar = new Date(req.body.date); //always puts a day early
-    //var dateVar = new Date(
-    //tempDate.getTime() + tempDate.getTimezoneOffset * 60000 //this is why I cannot use a let or const keyword, the variable is being changed
-    //);
   }
   var durationNum = parseInt(req.body.duration);
   const logObj = new Log({
@@ -113,8 +104,13 @@ app.post("/api/users/:_id/exercises", (req, res) => {
 });
 
 app.get("/api/users/:_id/logs", (req, res) => {
-  console.log("1");
-  User.findById({ _id: req.params._id }, (err, userData) => {
+  const { from, to, limit } = req.query;
+  var query = User.find(
+    { _id: req.params._id },
+    { date: { $gte: new Date(from), $lte: new Date(to) } }
+  ).limit(+limit);
+  // User.findById({ _id: req.params._id }, (err, userData) => {
+  query.exec((err, userData) => {
     if (err) {
       res.json({ error: "Invalid _id" });
     } else {
@@ -125,27 +121,6 @@ app.get("/api/users/:_id/logs", (req, res) => {
         count: countLog,
         log: userData.log,
       });
-      //console.log("2");
-      // Log.find(userData._id).exec((err, log) => {
-      //   if (!log) {
-      //     res.json({
-      //       _id: userData._id,
-      //       username: userData.username,
-      //       count: 0,
-      //       log: [],
-      //     });
-      //   } else {
-      //     console.log("3");
-      //     var countLog = log.length;
-      //     console.log("4");
-      //     res.json({
-      //       _id: userData._id,
-      //       username: userData.username,
-      //       count: countLog,
-      //       log: log,
-      //     });
-      //   }
-      // });
     }
   });
 });
