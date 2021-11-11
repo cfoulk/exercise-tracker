@@ -104,12 +104,7 @@ app.post("/api/users/:_id/exercises", (req, res) => {
 });
 
 app.get("/api/users/:_id/logs", (req, res) => {
-  // var query = User.find(
-  //   { _id: req.params._id },
-  //   { date: { $gte: new Date(from), $lte: new Date(to) } }
-  // ).limit(+limit);
   User.findById({ _id: req.params._id }, (err, userData) => {
-    //query.exec((err, userData) => {
     if (err) {
       res.json({ error: "Invalid" });
     } else {
@@ -135,19 +130,21 @@ app.get("/api/users/:_id/logs", (req, res) => {
           countLog = parseInt(req.query.limit);
         }
       }
+      let finalLog = [];
+      for (var i = 0; i < countLog; i++) {
+        finalLog[i] = {
+          description: logResult[i].description,
+          duration: logResult[i].duration,
+          date: logResult[i].date.toDateString(),
+        };
+      }
 
-      console.log("logging: " + logResult[0].date.toDateString());
-      logResult.forEach((x) => {
-        x.date = x.date.toDateString();
-        console.log("logging2: " + x);
-      });
+      //need to create an entire new json doc for logResult
       res.json({
         _id: userData._id,
         username: userData.username,
         count: countLog,
-        //from: fromDate,
-        //to: toDate,
-        log: logResult,
+        log: finalLog,
       });
     }
   });
