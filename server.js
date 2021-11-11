@@ -39,13 +39,14 @@ mongoose.connect(process.env.MONGO_URI, {
 });
 
 const logSchema = new Schema({
-  userId: String,
+  //userId: String,
   description: String,
   duration: Number,
   date: String,
 });
 const userSchema = new Schema({
-  username: String,
+  username: { type: String, required: true },
+  log: [logSchema],
 });
 
 const User = mongoose.model("user", userSchema);
@@ -67,7 +68,8 @@ app.post("/api/users", (req, res) => {
 });
 
 app.get("/api/users", (req, res) => {
-  User.find({}, (err, users) => {
+  var query = User.find({}).select("-log -__v");
+  query.exec((err, users) => {
     if (err) {
       res.json({ error: "No users found" });
     } else {
@@ -80,36 +82,33 @@ app.post("/api/users/:_id/exercises", (req, res) => {
   if (!req.body.date) {
     var dateVar = new Date();
   } else {
-    var tempDate = new Date(req.body.date);
-    var dateVar = new Date(
-      tempDate.getTime() + tempDate.getTimezoneOffset * 60000
-    );
+    var dateVar = new Date(req.body.date);
+    //var dateVar = new Date(
+    //tempDate.getTime() + tempDate.getTimezoneOffset * 60000 //this is why I cannot use a let or const keyword, the variable is being changed
+    //);
   }
-  let logObj = new Log({
-    userId: req.params._id,
+  const logObj = new Log({
     description: req.body.description,
     duration: req.body.duration,
     date: dateVar.toDateString(),
   });
-  User.findById({ _id: req.params._id }, (err, userData) => {
-    if (!userData) {
-      res.json({ error: "Invalid _id" });
-    } else {
-      logObj.save((err, data) => {
-        if (!data) {
-          res.json({ error: "Invalid" });
-        } else {
-          res.json({
-            _id: userData._id,
-            username: userData.username,
-            date: data.date,
-            description: data.description,
-            duration: data.duration,
-          });
-        }
-      });
+  User.findOneAndUpdate(
+    { _id: req.params._id },
+    { $push: { log: logObj } },
+    (err, userData) => {
+      if (!userData) {
+        res.json({ error: "Invalid _id" });
+      } else {
+        res.json({
+          _id: userData._id,
+          username: userData.username,
+          date: dateVar.toDateString(),
+          duration: req.body.duration,
+          description: req.body.description,
+        });
+      }
     }
-  });
+  );
 });
 
 app.get("/api/users/:_id/logs", (req, res) => {
@@ -118,27 +117,34 @@ app.get("/api/users/:_id/logs", (req, res) => {
     if (err) {
       res.json({ error: "Invalid _id" });
     } else {
-      console.log("2");
-      Log.find(userData._id).exec((err, log) => {
-        if (!log) {
-          res.json({
-            _id: userData._id,
-            username: userData.username,
-            count: 0,
-            log: [],
-          });
-        } else {
-          console.log("3");
-          var countLog = log.length;
-          console.log("4");
-          res.json({
-            _id: userData._id,
-            username: userData.username,
-            count: countLog,
-            log: log,
-          });
-        }
+      var countLog = userData.log.length;
+      res.json({
+        _id: userData._id,
+        username: userData.username,
+        count: countLog,
+        log: userData.log,
       });
+      //console.log("2");
+      // Log.find(userData._id).exec((err, log) => {
+      //   if (!log) {
+      //     res.json({
+      //       _id: userData._id,
+      //       username: userData.username,
+      //       count: 0,
+      //       log: [],
+      //     });
+      //   } else {
+      //     console.log("3");
+      //     var countLog = log.length;
+      //     console.log("4");
+      //     res.json({
+      //       _id: userData._id,
+      //       username: userData.username,
+      //       count: countLog,
+      //       log: log,
+      //     });
+      //   }
+      // });
     }
   });
 });
