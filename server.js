@@ -82,7 +82,7 @@ app.post("/api/users/:_id/exercises", (req, res) => {
   if (!req.body.date) {
     var dateVar = new Date();
   } else {
-    var dateVar = new Date(req.body.date);
+    var dateVar = new Date(req.body.date); //always puts a day early
     //var dateVar = new Date(
     //tempDate.getTime() + tempDate.getTimezoneOffset * 60000 //this is why I cannot use a let or const keyword, the variable is being changed
     //);
@@ -100,11 +100,11 @@ app.post("/api/users/:_id/exercises", (req, res) => {
         res.json({ error: "Invalid _id" });
       } else {
         res.json({
-          _id: userData._id,
           username: userData.username,
-          date: dateVar.toDateString(),
-          duration: req.body.duration,
           description: req.body.description,
+          duration: req.body.duration,
+          date: dateVar.toDateString(),
+          _id: userData._id,
         });
       }
     }
